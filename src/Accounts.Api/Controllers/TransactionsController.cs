@@ -17,9 +17,9 @@ namespace Accounts.Api.Controllers
         }
 
         [HttpGet("[action]")]
-        public async Task<IEnumerable<TransactionsPerCategoryAggregationModel>> Report(string accountResourceId)
+        public async Task<IEnumerable<TransactionsPerCategoryAggregationModel>> Report([FromQuery]GetTransactionsReportInput input)
         {
-            return await _getTransactionsReport.GetAccountTransactionsReport(accountResourceId);
+            return await _getTransactionsReport.GetAccountTransactionsReport(input);
         }
     }
 }

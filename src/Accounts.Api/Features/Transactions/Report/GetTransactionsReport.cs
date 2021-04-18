@@ -25,16 +25,26 @@ namespace Accounts.Api.Features.Transactions.Report
             _dateTimeProxy = dateTimeProxy;
         }
 
-        public async Task<IEnumerable<TransactionsPerCategoryAggregationModel>> GetAccountTransactionsReport(string accountResourceId)
+        public async Task<IEnumerable<TransactionsPerCategoryAggregationModel>> GetAccountTransactionsReport(GetTransactionsReportInput input)
         {
             //TODO: Replace returning nulls with util constants
-            if (String.IsNullOrEmpty(accountResourceId))
+            if(input == null) 
             {
                 return null;
             }
 
-            IEnumerable<Account> accounts = await _accountsRepo.GetAccounts();
-            var account = accounts.SingleOrDefault(a => a.ResourceId == accountResourceId);
+            if (String.IsNullOrEmpty(input.ClientId))
+            {
+                return null;
+            }
+            
+            if (String.IsNullOrEmpty(input.AccountResourceId))
+            {
+                return null;
+            }
+
+            IEnumerable<Account> accounts = await _accountsRepo.GetAccounts(input.ClientId);
+            var account = accounts.SingleOrDefault(a => a.ResourceId == input.AccountResourceId);
             if (account == null)
             {
                 return null;
