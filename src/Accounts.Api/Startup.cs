@@ -1,5 +1,7 @@
 using Accounts.Api.DataAccess.Accounts;
 using Accounts.Api.DataAccess.Transactions;
+using Accounts.Api.Features.Transactions.Report;
+using Accounts.Api.Utils;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -22,6 +24,8 @@ namespace Accounts.Api
         {
             services.AddTransient<IAccountsRepo, MockAccountsRepo>();
             services.AddTransient<ITransactionsRepo, MockTransactionsRepo>();
+            services.AddSingleton<IDateTimeProxy, DateTimeProxy>();
+            services.AddSingleton<GetTransactionsReport>();
 
             services.AddControllers();
         }
