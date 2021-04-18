@@ -7,45 +7,47 @@ namespace Accounts.Api.DataAccess.Accounts
 {
     public class MockAccountsRepo : IAccountsRepo
     {
-        public async Task<IEnumerable<Account>> GetAccounts()
-        {
-            return await Task.FromResult(new List<Account> {
+        private static List<Account> Accounts = new List<Account> {
                 new Account {
-                    ResourceId = Guid.NewGuid().ToString(),
+                    ResourceId = "5aed4c3e-fd57-4c45-8f75-95787e52ebcf",
                     Product = "Product1",
                     Iban = "NL69INGB0123456789",
                     Name = "AccountName1",
                     Currency = "EUR"
                 },
                 new Account {
-                    ResourceId = Guid.NewGuid().ToString(),
+                    ResourceId = "f41f6853-b430-4fba-93ab-34efa5ac5348",
                     Product = "Product2",
                     Iban = "NL69INGB0123456788",
                     Name = "AccountName2",
                     Currency = "EUR"
                 },
                 new Account {
-                    ResourceId = Guid.NewGuid().ToString(),
+                    ResourceId = "6e043036-c051-4516-b5bb-faac6cd89503",
                     Product = "Product3",
                     Iban = "RO69INGB0123456789",
                     Name = "AccountName3",
                     Currency = "EUR"
                 },
                 new Account {
-                    ResourceId = Guid.NewGuid().ToString(),
+                    ResourceId = "702c3f24-9930-4439-837c-a6615dbf0661",
                     Product = "Product4",
                     Iban = "RO69INGB0123456788",
                     Name = "AccountName4",
                     Currency = "RON"
                 },
                 new Account {
-                    ResourceId = Guid.NewGuid().ToString(),
+                    ResourceId = "f9fb1cd5-8c9d-4227-ab19-4f44edcf3efd",
                     Product = "Product1",
                     Iban = "NL69INGB0123456787",
                     Name = "AccountName5",
                     Currency = "USD"
                 },
-            });
+            };
+
+        public async Task<IEnumerable<Account>> GetAccounts()
+        {
+            return await Task.FromResult(Accounts);
         }
     }
 }

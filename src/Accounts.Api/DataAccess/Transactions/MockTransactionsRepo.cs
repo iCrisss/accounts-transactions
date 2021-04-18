@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Accounts.Api.DataAccess.Transactions.Models;
 
@@ -7,9 +8,7 @@ namespace Accounts.Api.DataAccess.Transactions
 {
     public class MockTransactionsRepo : ITransactionsRepo
     {
-        public async Task<IEnumerable<Transaction>> GetTransactions()
-        {
-            /*
+        /*
             Mock transactions for the following:
             - IBAN = NL69INGB0123456789
                 - February 2020
@@ -45,7 +44,7 @@ namespace Accounts.Api.DataAccess.Transactions
                 - April 2020
                     - Food - 61.02
             */
-            return await Task.FromResult(new List<Transaction> {
+        private static List<Transaction> Transactions = new List<Transaction> {
                 new Transaction {
                     Iban = "NL69INGB0123456789",
                     TransactionId = 1,
@@ -207,7 +206,10 @@ namespace Accounts.Api.DataAccess.Transactions
                     CategoryId = 1,
                     TransactionDate = new DateTime(2021, 4, 10)
                 },
-            });
+            };
+        public Task<IEnumerable<Transaction>> GetTransactions(string iban)
+        {
+            return Task.FromResult(Transactions.Where(t => t.Iban == iban));
         }
     }
 }

@@ -6,6 +6,6 @@ namespace Accounts.Api.DataAccess.Transactions
 {
     public interface ITransactionsRepo
     {
-        Task<IEnumerable<Transaction>> GetTransactions();
+        Task<IEnumerable<Transaction>> GetTransactions(string iban);
     }
 }
