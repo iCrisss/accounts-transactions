@@ -8,6 +8,7 @@ using Accounts.Api.DataAccess.Transactions;
 using Accounts.Api.DataAccess.Transactions.Models;
 using Accounts.Api.Features.Transactions.Models;
 using Accounts.Api.Features.Transactions.Report;
+using Accounts.Api.Features.Transactions.Report.Models;
 using Accounts.Api.Utils;
 using Moq;
 using Xunit;
@@ -20,7 +21,7 @@ namespace Accounts.Api.UnitTests.Features.Transactions.Report
         public async Task GetAccountTransactionsReport_InputNull_ReturnsNull()
         {
             //Given
-            string input = null;
+            GetTransactionsReportInput input = null;
             //When
             var accountsRepoMock = new Mock<IAccountsRepo>();
             var transactionsRepoMock = new Mock<ITransactionsRepo>();
@@ -33,10 +34,72 @@ namespace Accounts.Api.UnitTests.Features.Transactions.Report
         }
 
         [Fact]
-        public async Task GetAccountTransactionsReport_InputStringEmpty_ReturnsNull()
+        public async Task GetAccountTransactionsReport_ClientIdNull_ReturnsNull()
         {
             //Given
-            var input = String.Empty;
+            var input = new GetTransactionsReportInput
+            {
+                AccountResourceId = "test"
+            };
+            //When
+            var accountsRepoMock = new Mock<IAccountsRepo>();
+            var transactionsRepoMock = new Mock<ITransactionsRepo>();
+            var dateTimeProxyMock = new Mock<IDateTimeProxy>();
+
+            var getTransactionsReport = new GetTransactionsReport(accountsRepoMock.Object, transactionsRepoMock.Object, dateTimeProxyMock.Object);
+            var report = await getTransactionsReport.GetAccountTransactionsReport(input);
+            //Then
+            Assert.Null(report);
+        }
+
+        [Fact]
+        public async Task GetAccountTransactionsReport_InputClientIdEmpty_ReturnsNull()
+        {
+            //Given
+            var input = new GetTransactionsReportInput 
+            {
+                ClientId = String.Empty,
+                AccountResourceId = "test"
+            };
+            //When
+            var accountsRepoMock = new Mock<IAccountsRepo>();
+            var transactionsRepoMock = new Mock<ITransactionsRepo>();
+            var dateTimeProxyMock = new Mock<IDateTimeProxy>();
+
+            var getTransactionsReport = new GetTransactionsReport(accountsRepoMock.Object, transactionsRepoMock.Object, dateTimeProxyMock.Object);
+            var report = await getTransactionsReport.GetAccountTransactionsReport(input);
+            //Then
+            Assert.Null(report);
+        }
+
+        [Fact]
+        public async Task GetAccountTransactionsReport_AccountResourceIdNull_ReturnsNull()
+        {
+            //Given
+            var input = new GetTransactionsReportInput
+            {
+                ClientId = "test"
+            };
+            //When
+            var accountsRepoMock = new Mock<IAccountsRepo>();
+            var transactionsRepoMock = new Mock<ITransactionsRepo>();
+            var dateTimeProxyMock = new Mock<IDateTimeProxy>();
+
+            var getTransactionsReport = new GetTransactionsReport(accountsRepoMock.Object, transactionsRepoMock.Object, dateTimeProxyMock.Object);
+            var report = await getTransactionsReport.GetAccountTransactionsReport(input);
+            //Then
+            Assert.Null(report);
+        }
+
+        [Fact]
+        public async Task GetAccountTransactionsReport_AccountResourceIdEmpty_ReturnsNull()
+        {
+            //Given
+            var input = new GetTransactionsReportInput 
+            {
+                ClientId = "test",
+                AccountResourceId = String.Empty
+            };
             //When
             var accountsRepoMock = new Mock<IAccountsRepo>();
             var transactionsRepoMock = new Mock<ITransactionsRepo>();
@@ -52,7 +115,11 @@ namespace Accounts.Api.UnitTests.Features.Transactions.Report
         public async Task GetAccountTransactionsReport_NoAccountWithGivenId_ReturnsNull()
         {
             //Given
-            var input = "03d2f6d8-5dc1-48c8-82fc-06330d2f4989";
+            var input = new GetTransactionsReportInput 
+            {
+                ClientId = "03d2f6d8-5dc1-48c8-82fc-06330d2f4987",
+                AccountResourceId = "03d2f6d8-5dc1-48c8-82fc-06330d2f4989"
+            };
             //When
             var accountsRepoMock = new Mock<IAccountsRepo>();
             var transactionsRepoMock = new Mock<ITransactionsRepo>();
@@ -68,9 +135,30 @@ namespace Accounts.Api.UnitTests.Features.Transactions.Report
         public async Task GetAccountTransactionsReport_NoTransactionsForAccountInLastMonth_ReturnsNull()
         {
             //Given
-            var input = "03d2f6d8-5dc1-48c8-82fc-06330d2f4989";
+            var input = new GetTransactionsReportInput 
+            {
+                ClientId = "03d2f6d8-5dc1-48c8-82fc-06330d2f4987",
+                AccountResourceId = "5aed4c3e-fd57-4c45-8f75-95787e52ebcf"
+            };
             //When
             var accountsRepoMock = new Mock<IAccountsRepo>();
+            accountsRepoMock.Setup(a => a.GetAccounts(It.IsAny<string>()))
+                            .ReturnsAsync(new List<Account> {
+                                new Account {
+                                    ResourceId = "5aed4c3e-fd57-4c45-8f75-95787e52ebcf",
+                                    Product = "Product1",
+                                    Iban = "NL69INGB0123456789",
+                                    Name = "AccountName1",
+                                    Currency = "EUR"
+                                },
+                                new Account {
+                                    ResourceId = "f41f6853-b430-4fba-93ab-34efa5ac5348",
+                                    Product = "Product2",
+                                    Iban = "NL69INGB0123456788",
+                                    Name = "AccountName2",
+                                    Currency = "USD"
+                                },
+                            });
             var transactionsRepoMock = new Mock<ITransactionsRepo>();
             var dateTimeProxyMock = new Mock<IDateTimeProxy>();
 
@@ -89,11 +177,15 @@ namespace Accounts.Api.UnitTests.Features.Transactions.Report
         public async Task GetAccountTransactionsReport_AccountHasTransactionsForLastMonth_ReturnsReportWithTransactionsFromLastMonth(int currentMonth, TransactionCategory category, double sum)
         {
             //Given
-            var input = "5aed4c3e-fd57-4c45-8f75-95787e52ebcf";
+            var input = new GetTransactionsReportInput 
+            {
+                ClientId = "03d2f6d8-5dc1-48c8-82fc-06330d2f4987",
+                AccountResourceId = "5aed4c3e-fd57-4c45-8f75-95787e52ebcf"
+            };
             var currentDateTime = new DateTime(2021, currentMonth, 11);
             //When
             var accountsRepoMock = new Mock<IAccountsRepo>();
-            accountsRepoMock.Setup(a => a.GetAccounts())
+            accountsRepoMock.Setup(a => a.GetAccounts(It.IsAny<string>()))
                             .ReturnsAsync(new List<Account> {
                                 new Account {
                                     ResourceId = "5aed4c3e-fd57-4c45-8f75-95787e52ebcf",

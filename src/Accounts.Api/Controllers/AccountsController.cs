@@ -18,9 +18,9 @@ namespace Accounts.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<GetAccountsOutput> Get() 
+        public async Task<GetAccountsOutput> Get(string clientId) 
         {
-            IEnumerable<Account> accounts = await _accountsRepo.GetAccounts();
+            IEnumerable<Account> accounts = await _accountsRepo.GetAccounts(clientId);
 
             return new GetAccountsOutput
             {

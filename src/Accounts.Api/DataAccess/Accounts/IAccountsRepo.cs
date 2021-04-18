@@ -6,6 +6,6 @@ namespace Accounts.Api.DataAccess.Accounts
 {
     public interface IAccountsRepo
     {
-        Task<IEnumerable<Account>> GetAccounts();
+        Task<IEnumerable<Account>> GetAccounts(string clientId);
     }
 }
