@@ -1,3 +1,5 @@
+using System;
+using System.IO;
 using Accounts.Api.DataAccess.Accounts;
 using Accounts.Api.DataAccess.Transactions;
 using Accounts.Api.Features.Transactions.Report;
@@ -7,6 +9,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
 
 namespace Accounts.Api
 {
@@ -27,6 +30,14 @@ namespace Accounts.Api
             services.AddSingleton<IDateTimeProxy, DateTimeProxy>();
             services.AddSingleton<GetTransactionsReport>();
 
+            services.AddSwaggerGen(options =>
+            {
+                options.SwaggerDoc("v1", new OpenApiInfo { Title = "Accounts API", Version = "v1" });
+
+                var xmlDocsFile = Path.Combine(AppContext.BaseDirectory, "Accounts.Api.xml");
+                options.IncludeXmlComments(xmlDocsFile, true);
+            });
+
             services.AddControllers();
         }
 
@@ -37,6 +48,11 @@ namespace Accounts.Api
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseSwagger();
+            app.UseSwaggerUI(options => {
+                options.SwaggerEndpoint("/swagger/v1/swagger.json", "AccountsAPI v1");
+            });
 
             app.UseHttpsRedirection();
 
