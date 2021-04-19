@@ -38,6 +38,8 @@ namespace Accounts.Api
                 options.IncludeXmlComments(xmlDocsFile, true);
             });
 
+            services.AddHealthChecks();
+
             services.AddControllers();
         }
 
@@ -61,6 +63,7 @@ namespace Accounts.Api
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHealthChecks("/health");
             });
         }
     }
