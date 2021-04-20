@@ -58,7 +58,7 @@ namespace Accounts.Api.UnitTests.Features.Transactions.Report
         public async Task GetAccountTransactionsReport_InputClientIdEmpty_ReturnsFailResultWithNullOrEmptyStatus()
         {
             //Given
-            var input = new GetTransactionsReportInput 
+            var input = new GetTransactionsReportInput
             {
                 ClientId = String.Empty,
                 AccountResourceId = "test"
@@ -99,7 +99,7 @@ namespace Accounts.Api.UnitTests.Features.Transactions.Report
         public async Task GetAccountTransactionsReport_AccountResourceIdEmpty_ReturnsFailResultWithAccountResourceIdNullOrEmptyStatus()
         {
             //Given
-            var input = new GetTransactionsReportInput 
+            var input = new GetTransactionsReportInput
             {
                 ClientId = "test",
                 AccountResourceId = String.Empty
@@ -120,7 +120,7 @@ namespace Accounts.Api.UnitTests.Features.Transactions.Report
         public async Task GetAccountTransactionsReport_NoAccountWithGivenId_ReturnsFailResultWithAccountNotFoundStatus()
         {
             //Given
-            var input = new GetTransactionsReportInput 
+            var input = new GetTransactionsReportInput
             {
                 ClientId = "03d2f6d8-5dc1-48c8-82fc-06330d2f4987",
                 AccountResourceId = "03d2f6d8-5dc1-48c8-82fc-06330d2f4989"
@@ -141,7 +141,7 @@ namespace Accounts.Api.UnitTests.Features.Transactions.Report
         public async Task GetAccountTransactionsReport_NoTransactionsForAccountInLastMonth_ReturnsFailResultWithTransactionsForLastMonthNotFoundStatus()
         {
             //Given
-            var input = new GetTransactionsReportInput 
+            var input = new GetTransactionsReportInput
             {
                 ClientId = "03d2f6d8-5dc1-48c8-82fc-06330d2f4987",
                 AccountResourceId = "5aed4c3e-fd57-4c45-8f75-95787e52ebcf"
@@ -177,19 +177,20 @@ namespace Accounts.Api.UnitTests.Features.Transactions.Report
 
 
         [Theory]
-        [InlineData(4, TransactionCategory.Entertainment, 33.3)]
-        [InlineData(4, TransactionCategory.Food, 120)]
-        [InlineData(5, TransactionCategory.Food, 20)]
-        [InlineData(3, TransactionCategory.Food, 100)]
-        public async Task GetAccountTransactionsReport_AccountHasTransactionsForLastMonth_ReturnsReportWithTransactionsFromLastMonth(int currentMonth, TransactionCategory category, double sum)
+        [InlineData(TransactionCategory.Food, 120)]
+        [InlineData(TransactionCategory.Entertainment, 33.3)]
+        [InlineData(TransactionCategory.Clothing, 110)]
+        [InlineData(TransactionCategory.Travel, 20)]
+        [InlineData(TransactionCategory.MedicalExpenses, 90)]
+        public async Task GetAccountTransactionsReport_AccountHasTransactionsForLastMonth_ReturnsReportWithTransactionsFromLastMonth(TransactionCategory category, double sum)
         {
             //Given
-            var input = new GetTransactionsReportInput 
+            var input = new GetTransactionsReportInput
             {
                 ClientId = "03d2f6d8-5dc1-48c8-82fc-06330d2f4987",
                 AccountResourceId = "5aed4c3e-fd57-4c45-8f75-95787e52ebcf"
             };
-            var currentDateTime = new DateTime(2021, currentMonth, 11);
+            var currentDateTime = new DateTime(2021, 4, 11);
             //When
             var accountsRepoMock = new Mock<IAccountsRepo>();
             accountsRepoMock.Setup(a => a.GetAccounts(It.IsAny<string>()))
@@ -213,16 +214,14 @@ namespace Accounts.Api.UnitTests.Features.Transactions.Report
             /*
             Mock transactions for the following:
             - IBAN = NL69INGB0123456789
-                - February 2021
-                    - Food - 100
-                - March 2021
-                    - Food - 120
-                    - Entertainment - 33.3
-                - April 2021
-                    - Food - 20
+                - Food - 120
+                - Entertainment - 33.3
+                - Clothing - 110
+                - Travel - 20
+                - MedicalExpenses - 90
             */
             var transactionsRepoMock = new Mock<ITransactionsRepo>();
-            transactionsRepoMock.Setup(t => t.GetTransactions(It.IsAny<string>()))
+            transactionsRepoMock.Setup(t => t.GetTransactionsFromLastMonth(It.IsAny<string>()))
                                 .ReturnsAsync(new List<Transaction>() {
                                     new Transaction {
                                         Iban = "NL69INGB0123456789",
@@ -241,9 +240,9 @@ namespace Accounts.Api.UnitTests.Features.Transactions.Report
                                     new Transaction {
                                         Iban = "NL69INGB0123456789",
                                         TransactionId = 3,
-                                        Amount = 100,
-                                        CategoryId = 1,
-                                        TransactionDate = new DateTime(2021, 2, 15)
+                                        Amount = 110,
+                                        CategoryId = 3,
+                                        TransactionDate = new DateTime(2021, 3, 15)
                                     },
                                     new Transaction {
                                         Iban = "NL69INGB0123456789",
@@ -254,10 +253,17 @@ namespace Accounts.Api.UnitTests.Features.Transactions.Report
                                     },
                                     new Transaction {
                                         Iban = "NL69INGB0123456789",
+                                        TransactionId = 5,
+                                        Amount = 90,
+                                        CategoryId = 5,
+                                        TransactionDate = new DateTime(2021, 3, 10)
+                                    },
+                                    new Transaction {
+                                        Iban = "NL69INGB0123456789",
                                         TransactionId = 6,
                                         Amount = 20,
-                                        CategoryId = 1,
-                                        TransactionDate = new DateTime(2021, 4, 10)
+                                        CategoryId = 4,
+                                        TransactionDate = new DateTime(2021, 3, 10)
                                     },
                                 });
 
