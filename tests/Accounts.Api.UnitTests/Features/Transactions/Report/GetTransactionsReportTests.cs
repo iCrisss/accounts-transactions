@@ -18,7 +18,7 @@ namespace Accounts.Api.UnitTests.Features.Transactions.Report
     public class GetTransactionsReportTests
     {
         [Fact]
-        public async Task GetAccountTransactionsReport_InputNull_ReturnsNull()
+        public async Task GetAccountTransactionsReport_InputNull_ReturnsFailResultWithInputNullStatus()
         {
             //Given
             GetTransactionsReportInput input = null;
@@ -30,11 +30,12 @@ namespace Accounts.Api.UnitTests.Features.Transactions.Report
             var getTransactionsReport = new GetTransactionsReport(accountsRepoMock.Object, transactionsRepoMock.Object, dateTimeProxyMock.Object);
             var report = await getTransactionsReport.GetAccountTransactionsReport(input);
             //Then
-            Assert.Null(report);
+            Assert.False(report.IsSuccess);
+            Assert.Equal(GetTransactionsReportStatus.InputNull, report.Status);
         }
 
         [Fact]
-        public async Task GetAccountTransactionsReport_ClientIdNull_ReturnsNull()
+        public async Task GetAccountTransactionsReport_ClientIdNull_ReturnsFailResultWithClientIdNullOrEmptyStatus()
         {
             //Given
             var input = new GetTransactionsReportInput
@@ -49,11 +50,12 @@ namespace Accounts.Api.UnitTests.Features.Transactions.Report
             var getTransactionsReport = new GetTransactionsReport(accountsRepoMock.Object, transactionsRepoMock.Object, dateTimeProxyMock.Object);
             var report = await getTransactionsReport.GetAccountTransactionsReport(input);
             //Then
-            Assert.Null(report);
+            Assert.False(report.IsSuccess);
+            Assert.Equal(GetTransactionsReportStatus.ClientIdNullOrEmpty, report.Status);
         }
 
         [Fact]
-        public async Task GetAccountTransactionsReport_InputClientIdEmpty_ReturnsNull()
+        public async Task GetAccountTransactionsReport_InputClientIdEmpty_ReturnsFailResultWithNullOrEmptyStatus()
         {
             //Given
             var input = new GetTransactionsReportInput 
@@ -69,11 +71,12 @@ namespace Accounts.Api.UnitTests.Features.Transactions.Report
             var getTransactionsReport = new GetTransactionsReport(accountsRepoMock.Object, transactionsRepoMock.Object, dateTimeProxyMock.Object);
             var report = await getTransactionsReport.GetAccountTransactionsReport(input);
             //Then
-            Assert.Null(report);
+            Assert.False(report.IsSuccess);
+            Assert.Equal(GetTransactionsReportStatus.ClientIdNullOrEmpty, report.Status);
         }
 
         [Fact]
-        public async Task GetAccountTransactionsReport_AccountResourceIdNull_ReturnsNull()
+        public async Task GetAccountTransactionsReport_AccountResourceIdNull_ReturnsFailResultWithAccountResourceIdNullOrEmptyStatus()
         {
             //Given
             var input = new GetTransactionsReportInput
@@ -88,11 +91,12 @@ namespace Accounts.Api.UnitTests.Features.Transactions.Report
             var getTransactionsReport = new GetTransactionsReport(accountsRepoMock.Object, transactionsRepoMock.Object, dateTimeProxyMock.Object);
             var report = await getTransactionsReport.GetAccountTransactionsReport(input);
             //Then
-            Assert.Null(report);
+            Assert.False(report.IsSuccess);
+            Assert.Equal(GetTransactionsReportStatus.AccountResourceIdNullOrEmpty, report.Status);
         }
 
         [Fact]
-        public async Task GetAccountTransactionsReport_AccountResourceIdEmpty_ReturnsNull()
+        public async Task GetAccountTransactionsReport_AccountResourceIdEmpty_ReturnsFailResultWithAccountResourceIdNullOrEmptyStatus()
         {
             //Given
             var input = new GetTransactionsReportInput 
@@ -108,11 +112,12 @@ namespace Accounts.Api.UnitTests.Features.Transactions.Report
             var getTransactionsReport = new GetTransactionsReport(accountsRepoMock.Object, transactionsRepoMock.Object, dateTimeProxyMock.Object);
             var report = await getTransactionsReport.GetAccountTransactionsReport(input);
             //Then
-            Assert.Null(report);
+            Assert.False(report.IsSuccess);
+            Assert.Equal(GetTransactionsReportStatus.AccountResourceIdNullOrEmpty, report.Status);
         }
 
         [Fact]
-        public async Task GetAccountTransactionsReport_NoAccountWithGivenId_ReturnsNull()
+        public async Task GetAccountTransactionsReport_NoAccountWithGivenId_ReturnsFailResultWithAccountNotFoundStatus()
         {
             //Given
             var input = new GetTransactionsReportInput 
@@ -128,11 +133,12 @@ namespace Accounts.Api.UnitTests.Features.Transactions.Report
             var getTransactionsReport = new GetTransactionsReport(accountsRepoMock.Object, transactionsRepoMock.Object, dateTimeProxyMock.Object);
             var report = await getTransactionsReport.GetAccountTransactionsReport(input);
             //Then
-            Assert.Null(report);
+            Assert.False(report.IsSuccess);
+            Assert.Equal(GetTransactionsReportStatus.AccountNotFound, report.Status);
         }
 
         [Fact]
-        public async Task GetAccountTransactionsReport_NoTransactionsForAccountInLastMonth_ReturnsNull()
+        public async Task GetAccountTransactionsReport_NoTransactionsForAccountInLastMonth_ReturnsFailResultWithTransactionsForLastMonthNotFoundStatus()
         {
             //Given
             var input = new GetTransactionsReportInput 
@@ -165,7 +171,8 @@ namespace Accounts.Api.UnitTests.Features.Transactions.Report
             var getTransactionsReport = new GetTransactionsReport(accountsRepoMock.Object, transactionsRepoMock.Object, dateTimeProxyMock.Object);
             var report = await getTransactionsReport.GetAccountTransactionsReport(input);
             //Then
-            Assert.Null(report);
+            Assert.False(report.IsSuccess);
+            Assert.Equal(GetTransactionsReportStatus.TransactionsForLastMonthNotFound, report.Status);
         }
 
 
@@ -261,7 +268,9 @@ namespace Accounts.Api.UnitTests.Features.Transactions.Report
             var getTransactionsReport = new GetTransactionsReport(accountsRepoMock.Object, transactionsRepoMock.Object, dateTimeProxyMock.Object);
             var report = await getTransactionsReport.GetAccountTransactionsReport(input);
             //Then
-            Assert.Equal(report.First(t => t.CategoryName == category.ToString()).TotalAmount, sum);
+            Assert.True(report.IsSuccess);
+            Assert.Equal(GetTransactionsReportStatus.Success, report.Status);
+            Assert.Equal(report.Value.First(t => t.CategoryName == category.ToString()).TotalAmount, sum);
         }
     }
 }
