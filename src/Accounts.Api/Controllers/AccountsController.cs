@@ -31,7 +31,7 @@ namespace Accounts.Api.Controllers
         /// <response code="200">Returns the array</response>
         /// <response code="400">If the ClientId is null</response>
         [HttpGet]
-        public async Task<GetAccountsOutput> Get([FromQuery]GetAccountsInput input) 
+        public async Task<ActionResult<GetAccountsOutput>> Get([FromQuery]GetAccountsInput input) 
         {
             IEnumerable<Account> accounts = await _accountsRepo.GetAccounts(input.ClientId);
 

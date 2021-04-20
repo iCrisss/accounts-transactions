@@ -28,7 +28,7 @@ namespace Accounts.Api
             services.AddTransient<IAccountsRepo, MockAccountsRepo>();
             services.AddTransient<ITransactionsRepo, MockTransactionsRepo>();
             services.AddSingleton<IDateTimeProxy, DateTimeProxy>();
-            services.AddSingleton<GetTransactionsReport>();
+            services.AddTransient<IGetTransactionsReport, GetTransactionsReport>();
 
             services.AddSwaggerGen(options =>
             {
