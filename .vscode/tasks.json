@@ -1,0 +1,106 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "command": "dotnet",
+            "type": "shell",
+            "args": [
+                "build",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "group": "build",
+            "presentation": {
+                "reveal": "silent"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "type": "docker-build",
+            "label": "docker-build: debug",
+            "dependsOn": [
+                "build"
+            ],
+            "dockerBuild": {
+                "tag": "accountstransactions:dev",
+                "target": "base",
+                "dockerfile": "${workspaceFolder}/src/Accounts.Api/Dockerfile",
+                "context": "${workspaceFolder}",
+                "pull": true,
+            },
+            "netCore": {
+                "appProject": "${workspaceFolder}/src/Accounts.Api/Accounts.Api.csproj"
+            }
+        },
+        {
+            "type": "docker-build",
+            "label": "docker-build: release",
+            "dependsOn": [
+                "build"
+            ],
+            "dockerBuild": {
+                "tag": "accountstransactions:latest",
+                "dockerfile": "${workspaceFolder}/src/Accounts.Api/Dockerfile",
+                "context": "${workspaceFolder}",
+                "pull": true
+            },
+            "netCore": {
+                "appProject": "${workspaceFolder}/src/Accounts.Api/Accounts.Api.csproj"
+            }
+        },
+        {
+            "type": "docker-run",
+            "label": "docker-run: debug",
+            "dependsOn": [
+                "docker-build: debug"
+            ],
+            "dockerRun": {
+                "env": {
+                    "ASPNETCORE_ENVIRONMENT": "Development"
+                },
+                "ports": [ 
+                    {
+                        "hostPort": 8080,
+                        "containerPort": 80
+                    },
+                    {
+                        "hostPort": 8443,
+                        "containerPort": 443
+                    }
+                ]
+            },
+            "netCore": {
+                "appProject": "${workspaceFolder}/src/Accounts.Api/Accounts.Api.csproj",
+                "enableDebugging": true
+            }
+        },
+        {
+            "type": "docker-run",
+            "label": "docker-run: release",
+            "dependsOn": [
+                "docker-build: release"
+            ],
+            "dockerRun": {
+                "env": {
+                    "ASPNETCORE_ENVIRONMENT": "Production",
+                },
+                "ports": [ 
+                    {
+                        "hostPort": 8080,
+                        "containerPort": 80
+                    },
+                    {
+                        "hostPort": 8443,
+                        "containerPort": 443
+                    }
+                ]
+            },
+            "netCore": {
+                "appProject": "${workspaceFolder}/src/Accounts.Api/Accounts.Api.csproj"
+            }
+        }
+    ]
+}
