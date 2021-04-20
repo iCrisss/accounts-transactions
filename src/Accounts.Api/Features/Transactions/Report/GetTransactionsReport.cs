@@ -12,7 +12,13 @@ using Accounts.Api.Utils;
 
 namespace Accounts.Api.Features.Transactions.Report
 {
-    public class GetTransactionsReport
+
+    public interface IGetTransactionsReport 
+    {
+        Task<Result<GetTransactionsReportStatus, IEnumerable<TransactionsPerCategoryAggregationModel>>> GetAccountTransactionsReport(GetTransactionsReportInput input);
+    }
+
+    public class GetTransactionsReport : IGetTransactionsReport
     {
         private IAccountsRepo _accountsRepo;
         private ITransactionsRepo _transactionsRepo;
@@ -25,29 +31,28 @@ namespace Accounts.Api.Features.Transactions.Report
             _dateTimeProxy = dateTimeProxy;
         }
 
-        public async Task<IEnumerable<TransactionsPerCategoryAggregationModel>> GetAccountTransactionsReport(GetTransactionsReportInput input)
+        public async Task<Result<GetTransactionsReportStatus, IEnumerable<TransactionsPerCategoryAggregationModel>>> GetAccountTransactionsReport(GetTransactionsReportInput input)
         {
-            //TODO: Replace returning nulls with util constants
             if(input == null) 
             {
-                return null;
+                return Result<GetTransactionsReportStatus, IEnumerable<TransactionsPerCategoryAggregationModel>>.Fail(GetTransactionsReportStatus.InputNull, "Input is null.");
             }
 
             if (String.IsNullOrEmpty(input.ClientId))
             {
-                return null;
+                return Result<GetTransactionsReportStatus, IEnumerable<TransactionsPerCategoryAggregationModel>>.Fail(GetTransactionsReportStatus.ClientIdNullOrEmpty, "ClientId is null or empty.");
             }
             
             if (String.IsNullOrEmpty(input.AccountResourceId))
             {
-                return null;
+                return Result<GetTransactionsReportStatus, IEnumerable<TransactionsPerCategoryAggregationModel>>.Fail(GetTransactionsReportStatus.AccountResourceIdNullOrEmpty, "AccountResourceId is null or empty.");
             }
 
             IEnumerable<Account> accounts = await _accountsRepo.GetAccounts(input.ClientId);
             var account = accounts.SingleOrDefault(a => a.ResourceId == input.AccountResourceId);
             if (account == null)
             {
-                return null;
+                return Result<GetTransactionsReportStatus, IEnumerable<TransactionsPerCategoryAggregationModel>>.Fail(GetTransactionsReportStatus.AccountNotFound, "No account could be found.");
             }
 
             //TODO: Retrieve only transactions from required month
@@ -56,7 +61,7 @@ namespace Accounts.Api.Features.Transactions.Report
 
             if (transactions == null || !transactions.Any())
             {
-                return null;
+                return Result<GetTransactionsReportStatus, IEnumerable<TransactionsPerCategoryAggregationModel>>.Fail(GetTransactionsReportStatus.TransactionsForLastMonthNotFound, "No transactions found for last month");
             }
 
             var transactionsSummedByCategory = new Dictionary<int, TransactionsPerCategoryAggregationModel>();
@@ -77,7 +82,7 @@ namespace Accounts.Api.Features.Transactions.Report
                 }
             }
 
-            return transactionsSummedByCategory.Values;
+            return Result<GetTransactionsReportStatus, IEnumerable<TransactionsPerCategoryAggregationModel>>.Success(GetTransactionsReportStatus.Success, transactionsSummedByCategory.Values);
         }
 
         private Boolean IsFromLastMonth(DateTime transactionDate)
