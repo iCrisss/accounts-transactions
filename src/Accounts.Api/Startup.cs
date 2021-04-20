@@ -56,8 +56,6 @@ namespace Accounts.Api
                 options.SwaggerEndpoint("/swagger/v1/swagger.json", "AccountsAPI v1");
             });
 
-            app.UseHttpsRedirection();
-
             app.UseRouting();
 
             app.UseEndpoints(endpoints =>
