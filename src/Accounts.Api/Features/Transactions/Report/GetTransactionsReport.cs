@@ -55,10 +55,7 @@ namespace Accounts.Api.Features.Transactions.Report
                 return Result<GetTransactionsReportStatus, IEnumerable<TransactionsPerCategoryAggregationModel>>.Fail(GetTransactionsReportStatus.AccountNotFound, "No account could be found.");
             }
 
-            //TODO: Retrieve only transactions from required month
-            IEnumerable<Transaction> transactions = await _transactionsRepo.GetTransactions(account.Iban);
-            transactions = transactions.Where(t => IsFromLastMonth(t.TransactionDate));
-
+            IEnumerable<Transaction> transactions = await _transactionsRepo.GetTransactionsFromLastMonth(account.Iban);
             if (transactions == null || !transactions.Any())
             {
                 return Result<GetTransactionsReportStatus, IEnumerable<TransactionsPerCategoryAggregationModel>>.Fail(GetTransactionsReportStatus.TransactionsForLastMonthNotFound, "No transactions found for last month");
@@ -83,15 +80,6 @@ namespace Accounts.Api.Features.Transactions.Report
             }
 
             return Result<GetTransactionsReportStatus, IEnumerable<TransactionsPerCategoryAggregationModel>>.Success(GetTransactionsReportStatus.Success, transactionsSummedByCategory.Values);
-        }
-
-        private Boolean IsFromLastMonth(DateTime transactionDate)
-        {
-            var currentDateTime = _dateTimeProxy.UtcNow();
-            var startDate = new DateTime(currentDateTime.Year, currentDateTime.AddMonths(-1).Month, 1);
-            var endDate = new DateTime(currentDateTime.Year, currentDateTime.Month, 1);
-
-            return transactionDate >= startDate && transactionDate < endDate;
         }
 
     }

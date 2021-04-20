@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Accounts.Api.DataAccess.Transactions.Models;
+using Accounts.Api.Utils;
 
 namespace Accounts.Api.DataAccess.Transactions
 {
@@ -207,9 +208,26 @@ namespace Accounts.Api.DataAccess.Transactions
                     TransactionDate = new DateTime(2021, 4, 10)
                 },
             };
-        public Task<IEnumerable<Transaction>> GetTransactions(string iban)
+
+        public IDateTimeProxy _dateTimeProxy;
+
+        public MockTransactionsRepo(IDateTimeProxy dateTimeProxy) 
         {
-            return Task.FromResult(Transactions.Where(t => t.Iban == iban));
+            _dateTimeProxy = dateTimeProxy;
+        }
+
+        public Task<IEnumerable<Transaction>> GetTransactionsFromLastMonth(string iban)
+        {
+            return Task.FromResult(Transactions.Where(t => t.Iban == iban && IsFromLastMonth(t.TransactionDate)));
+        }
+
+        private Boolean IsFromLastMonth(DateTime transactionDate)
+        {
+            var currentDateTime = _dateTimeProxy.UtcNow();
+            var startDate = new DateTime(currentDateTime.Year, currentDateTime.AddMonths(-1).Month, 1);
+            var endDate = new DateTime(currentDateTime.Year, currentDateTime.Month, 1);
+
+            return transactionDate >= startDate && transactionDate < endDate;
         }
     }
 }
