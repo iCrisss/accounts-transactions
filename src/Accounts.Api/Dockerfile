@@ -3,6 +3,11 @@ WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
+RUN apt-get update && apt-get install -y curl
+
+HEALTHCHECK  --interval=30s --timeout=5s --start-period=10s \
+  CMD curl --fail http://localhost/health || exit 1
+
 FROM mcr.microsoft.com/dotnet/sdk:5.0-buster-slim AS build
 WORKDIR /src
 COPY ["Accounts.Api.csproj", "Accounts.Api/"]
